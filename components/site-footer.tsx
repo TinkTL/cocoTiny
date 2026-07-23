@@ -1,9 +1,10 @@
+'use client'
+
 import Image from 'next/image'
 import { Mail, Sparkles } from 'lucide-react'
 import { Petal } from './decorations'
 import { SocialRow } from './social-icons'
-
-const links = ['Browse', 'Categories', 'About', 'Contact', 'Support']
+import { useLanguage } from './language-provider'
 
 const footerLeaves = [
   ['left-[25%] top-12', 'var(--pink)', 42],
@@ -16,6 +17,9 @@ const footerLeaves = [
 ] as const
 
 export function SiteFooter() {
+  const { copy } = useLanguage()
+  const footer = copy.home.footer
+
   return (
     <footer className="relative mt-12 bg-cream pb-4 pt-5 text-ink shadow-[0_-8px_30px_rgba(43,27,68,0.06)]">
       {/* Dense overlapping circles create an irregular cloud-like upper edge. */}
@@ -59,14 +63,14 @@ export function SiteFooter() {
               height={84}
               className="h-10 w-auto lg:h-11"
             />
-            <p className="pl-2 text-xs font-semibold text-ink/55">Tiny worlds, cozy vibes.</p>
+            <p className="pl-2 text-xs font-semibold text-ink/55">{footer.tagline}</p>
           </div>
         </div>
 
         <div className="flex flex-col items-center gap-3">
-          <nav aria-label="Footer navigation">
+          <nav aria-label={footer.navigation}>
             <ul className="flex flex-wrap items-center justify-center gap-y-2 text-sm font-bold lg:text-base">
-              {links.map((link, index) => (
+              {footer.links.map((link, index) => (
                 <li key={link} className="flex items-center">
                   {index > 0 && <span className="mx-4 text-ink/25" aria-hidden="true">|</span>}
                   <a href="#" className="transition-colors hover:text-pink">{link}</a>
@@ -82,7 +86,7 @@ export function SiteFooter() {
             <Mail className="h-5 w-5 text-purple" aria-hidden="true" />
             w211299486@gmail.com
           </a>
-          <p>© 2026 cocoTiny. All rights reserved.</p>
+          <p>{footer.rights}</p>
         </div>
       </div>
     </footer>

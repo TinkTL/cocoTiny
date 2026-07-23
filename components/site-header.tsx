@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { LanguageSwitcher } from './language-switcher'
 import { SocialRow } from './social-icons'
 
 export function SiteHeader() {
@@ -13,7 +14,10 @@ export function SiteHeader() {
         className="h-14 w-auto sm:h-16 lg:h-24"
       />
 
-      <SocialRow className="hidden gap-5 sm:flex lg:gap-8" />
+      <div className="flex items-center gap-4 lg:gap-7">
+        <SocialRow className="hidden gap-5 sm:flex lg:gap-8" />
+        <LanguageSwitcher />
+      </div>
     </header>
   )
 }

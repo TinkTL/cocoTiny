@@ -2,6 +2,7 @@ export type Game = {
   title: string
   image: string
   tags: string[]
+  href?: string
 }
 
 // Smaller games in the top-right cluster of the featured section
@@ -24,43 +25,51 @@ export const featuredSmall: (Game & { badge?: string; badgeColor?: string; subti
 
 export const moreGames: Game[] = [
   {
-    title: 'DREDGE',
-    image: '/games/dredge.png',
-    tags: ['Adventure', 'Fishing', 'Mystery'],
+    title: 'DENGMIAO YOUCHAI',
+    image: '/assets/dengmiao-youchai/cover-en.png',
+    tags: [],
+    href: '/DENGMIAO-YOUCHAI',
   },
   {
-    title: 'TUNIC',
-    image: '/games/tunic.png',
-    tags: ['Action', 'Adventure', 'Puzzle'],
+    title: 'GARDENIA HERB SOCIETY',
+    image: '/assets/gardenia-herb-society/cover-en.png',
+    tags: [],
+    href: '/GARDENIA-HERB-SOCIETY',
   },
   {
-    title: 'CELESTE',
-    image: '/games/celeste.png',
-    tags: ['Platformer', 'Precision', 'Story Rich'],
+    title: 'LINDENTEAHOUSE',
+    image: '/assets/lindenteahouse/cover-en.png',
+    tags: ['治愈', '童话', '温暖', '神秘但不恐怖'],
+    href: '/LINDENTEAHOUSE',
   },
   {
-    title: 'SEA OF STARS',
-    image: '/games/sea-of-stars.png',
-    tags: ['RPG', 'Adventure', 'Pixel Art'],
+    title: 'MINT KNIGHTS',
+    image: '/assets/mint-knights/cover-en.png',
+    tags: [],
+    href: '/MINT-KNIGHTS',
   },
   {
-    title: 'INSCRYPTION',
-    image: '/games/inscryption.png',
-    tags: ['Card Game', 'Roguelike', 'Horror'],
+    title: 'QING LUO OUTPOST',
+    image: '/assets/qing-luo-outpost/cover-en.png',
+    tags: [],
+    href: '/QING-LUO-OUTPOST',
   },
   {
-    title: 'RAIN\nWORLD 2',
-    image: '/games/rain-world.png',
-    tags: ['Action', 'Roguelike', 'Co-op'],
+    title: 'SHACHA TANGGUOWU',
+    image: '/assets/shacha-tangguowu/cover-en.png',
+    tags: [],
+    href: '/SHACHA-TANGGUOWU',
   },
   {
-    title: 'CARRION',
-    image: '/games/carrion.png',
-    tags: ['Horror', 'Action', 'Metroidvania'],
+    title: 'WINDMILLBAKERY',
+    image: '/assets/windmillbakery/cover-en.png',
+    tags: ['治愈', '童话', '温暖', '童趣但不幼稚'],
+    href: '/WINDMILLBAKERY',
   },
   {
-    title: 'CULT\nOF THE\nLAMB',
-    image: '/games/cult-of-the-lamb.png',
-    tags: ['Action', 'Roguelike', 'Management'],
+    title: 'YING LONG NIGHT LANTERN',
+    image: '/assets/ying-long-night-lantern/cover-en.png',
+    tags: [],
+    href: '/YING-LONG-NIGHT-LANTERN',
   },
 ]

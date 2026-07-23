@@ -5,37 +5,21 @@ import { useState } from 'react'
 import { ArrowLeft, ArrowRight, Play } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Petal, Sparkle } from './decorations'
+import { useLanguage } from './language-provider'
 
-const slides = [
-  {
-    badge: 'FEATURED EVENT',
-    title: 'Wholesome\nDirect 2026',
-    date: 'June 6, 2026',
-    desc: 'A cozy celebration of indie games worth playing.',
-    image: '/games/wholesome-direct.png',
-  },
-  {
-    badge: 'LIVE SHOWCASE',
-    title: 'Indie\nWorlds Expo',
-    date: 'July 20, 2026',
-    desc: 'Discover hand-crafted worlds from tiny studios.',
-    image: '/games/sea-of-stars.png',
-  },
-  {
-    badge: 'COMMUNITY PICK',
-    title: 'Cozy Nights\nStream',
-    date: 'August 3, 2026',
-    desc: 'Relaxing games to unwind with, curated by fans.',
-    image: '/games/coffee-talk.png',
-  },
-]
+const slideImages = [
+  '/games/wholesome-direct.png',
+  '/games/sea-of-stars.png',
+  '/games/coffee-talk.png',
+] as const
 
 export function HeroSection() {
+  const { copy } = useLanguage()
   const [current, setCurrent] = useState(0)
-  const slide = slides[current]
+  const slide = copy.home.hero.slides[current]
 
   const go = (dir: number) => {
-    setCurrent((c) => (c + dir + slides.length) % slides.length)
+    setCurrent((c) => (c + dir + copy.home.hero.slides.length) % copy.home.hero.slides.length)
   }
 
   return (
@@ -58,7 +42,7 @@ export function HeroSection() {
         />
 
         <p className="mt-4 max-w-sm text-pretty text-base leading-relaxed text-ink/70">
-          CocoTiny selects independent game art assets full of emotions, creativity, and bold ideas!
+          {copy.home.hero.description}
         </p>
       </div>
 
@@ -66,7 +50,7 @@ export function HeroSection() {
       <div className="relative overflow-hidden rounded-md shadow-xl ring-1 ring-ink/5">
         <div className="relative aspect-[4/3] w-full sm:aspect-[16/11]">
           <Image
-            src={slide.image}
+            src={slideImages[current]}
             alt={slide.title.replace('\n', ' ')}
             fill
             priority
@@ -82,7 +66,9 @@ export function HeroSection() {
               {slide.title}
             </h2>
             <p className="mt-2 font-display text-lg font-medium text-white/90">{slide.date}</p>
-            <p className="mt-1 max-w-xs text-sm leading-relaxed text-white/80">{slide.desc}</p>
+            <p className="mt-1 max-w-xs text-sm leading-relaxed text-white/80">
+              {slide.description}
+            </p>
 
             <a
               href="#"
@@ -91,7 +77,7 @@ export function HeroSection() {
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-pink text-white">
                 <Play className="h-3 w-3 fill-current" />
               </span>
-              Watch on YouTube
+              {copy.home.hero.watch}
             </a>
           </div>
 
@@ -100,7 +86,7 @@ export function HeroSection() {
             <button
               type="button"
               onClick={() => go(-1)}
-              aria-label="Previous slide"
+              aria-label={copy.home.hero.previous}
               className="flex h-9 w-9 items-center justify-center rounded-full bg-cream text-ink shadow-md transition-transform hover:scale-110"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -108,7 +94,7 @@ export function HeroSection() {
             <button
               type="button"
               onClick={() => go(1)}
-              aria-label="Next slide"
+              aria-label={copy.home.hero.next}
               className="flex h-9 w-9 items-center justify-center rounded-full bg-cream text-ink shadow-md transition-transform hover:scale-110"
             >
               <ArrowRight className="h-4 w-4" />
@@ -116,12 +102,12 @@ export function HeroSection() {
           </div>
 
           <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-2">
-            {slides.map((_, i) => (
+            {copy.home.hero.slides.map((_, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => setCurrent(i)}
-                aria-label={`Go to slide ${i + 1}`}
+                aria-label={`${copy.home.hero.goToSlide} ${i + 1}`}
                 className={cn(
                   'h-2 rounded-full transition-all',
                   i === current ? 'w-5 bg-white' : 'w-2 bg-white/50',
