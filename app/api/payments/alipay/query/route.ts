@@ -68,6 +68,8 @@ export async function GET(request: Request) {
       amount: totalAmount,
       tradeNo: paid ? tradeNo : undefined,
       email: persistedOrder ? maskEmail(persistedOrder.email) : undefined,
+      assetTitle: persistedOrder?.title,
+      paidAt: persistedOrder?.paidAt,
       emailStatus: persistedOrder?.emailStatus,
     })
   } catch (error) {

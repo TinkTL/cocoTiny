@@ -6,7 +6,7 @@ import {
   markEmailSent,
   markPaymentOrderPaid,
   PaymentOrder,
-  prepareEmailRetry,
+  prepareEmailRetryForOrder,
 } from '@/lib/payment-orders'
 
 function createDownloadToken() {
@@ -109,11 +109,10 @@ export async function confirmPaidOrderAndDeliver(
   return result.order
 }
 
-export async function resendPaidDelivery(orderNo: string, email: string) {
+export async function resendPaidDelivery(orderNo: string) {
   const rawToken = createDownloadToken()
-  const order = await prepareEmailRetry({
+  const order = await prepareEmailRetryForOrder({
     orderNo,
-    email,
     tokenHash: hashDownloadToken(rawToken),
   })
 

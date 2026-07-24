@@ -166,9 +166,8 @@ export async function markPaymentOrderPaid(input: {
   return { order, shouldSend: false }
 }
 
-export async function prepareEmailRetry(input: {
+export async function prepareEmailRetryForOrder(input: {
   orderNo: string
-  email: string
   tokenHash: string
   minimumDelaySeconds?: number
 }) {
@@ -183,7 +182,6 @@ export async function prepareEmailRetry(input: {
       email_last_attempt_at = NOW(),
       updated_at = NOW()
     WHERE order_no = ${input.orderNo}
-      AND email = ${normalizeEmail(input.email)}
       AND status = 'PAID'
       AND download_expires_at > NOW()
       AND (
