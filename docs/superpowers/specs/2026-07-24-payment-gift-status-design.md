@@ -34,6 +34,20 @@ The resend endpoint:
 
 The result panel retains the CocoTiny logo and the two support email links.
 
+## Resend cooldown presentation
+
+The query response includes the server-calculated number of seconds until the
+next resend is allowed. The value is derived from the persisted last email
+attempt time and the existing 60-second retry interval.
+
+- When available, the resend button uses a solid CocoTiny purple background
+  with white text: `重新发送领取邮件`.
+- During cooldown, the button is disabled with a lighter purple treatment and
+  displays the live countdown, for example `52 秒后可重新发送`.
+- A successful resend resets the countdown to 60 seconds.
+- Reloading the page resumes from server time instead of restarting a
+  client-only timer.
+
 ## Data flow
 
 1. Alipay returns to the original product page with the random merchant order
@@ -56,5 +70,7 @@ The result panel retains the CocoTiny logo and the two support email links.
 - Confirm the full buyer email never appears in API responses or page markup.
 - Confirm resend ignores client-controlled destination data.
 - Confirm paid time uses `Asia/Shanghai`.
+- Confirm resend cooldown survives reload and reaches zero against server time.
+- Confirm the active and disabled button colors meet the approved visual state.
 - Confirm query, resend, TypeScript, lint, and production build pass.
 - Confirm the original checkout form and Alipay creation flow remain unchanged.
