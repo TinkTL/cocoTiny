@@ -48,6 +48,22 @@ attempt time and the existing 60-second retry interval.
 - Reloading the page resumes from server time instead of restarting a
   client-only timer.
 
+## Resend limit and order-number handling
+
+- The first delivery email does not count as a resend.
+- Each paid order allows at most three resend attempts.
+- The database update enforces the total attempt limit atomically so repeated
+  or concurrent client requests cannot bypass it.
+- The UI displays the remaining resend count and disables the action when it
+  reaches zero.
+- The order number remains visually truncated and has a copy action that writes
+  the complete value to the clipboard, with explicit success and failure
+  feedback.
+- After the product page consumes `payment=return` and `orderNo`, it removes
+  both values from the visible URL using history replacement without reloading
+  the page. The in-memory panel keeps the order number for the active result
+  view.
+
 ## Data flow
 
 1. Alipay returns to the original product page with the random merchant order
@@ -72,5 +88,10 @@ attempt time and the existing 60-second retry interval.
 - Confirm paid time uses `Asia/Shanghai`.
 - Confirm resend cooldown survives reload and reaches zero against server time.
 - Confirm the active and disabled button colors meet the approved visual state.
+- Confirm four total delivery attempts are possible: one initial delivery and
+  three resends.
+- Confirm concurrent resend requests cannot exceed the database limit.
+- Confirm the return query is removed without closing the active modal.
+- Confirm the copy action copies the full, untruncated order number.
 - Confirm query, resend, TypeScript, lint, and production build pass.
 - Confirm the original checkout form and Alipay creation flow remain unchanged.
