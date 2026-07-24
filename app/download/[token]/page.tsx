@@ -1,10 +1,8 @@
-import Link from 'next/link'
-import { CircleAlert, PackageCheck } from 'lucide-react'
+import Image from 'next/image'
 import { DownloadClient } from './download-client'
-import {
-  getDownloadOrder,
-  isDownloadToken,
-} from '@/lib/payment-orders'
+import { OrderProductShell } from '@/components/order-product-shell'
+import { getDownloadOrder, isDownloadToken } from '@/lib/payment-orders'
+import { getOrderProductPresentation } from '@/lib/order-product-presentation'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,51 +14,59 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
   const { token } = await params
   const order = isDownloadToken(token) ? await getDownloadOrder(token) : undefined
   const valid = Boolean(order)
+  const product = getOrderProductPresentation(
+    order?.assetSlug || 'gardenia-herb-society',
+    order?.title,
+  )
 
   return (
-    <main className="grid min-h-screen place-items-center bg-[#f6f9fc] px-5 py-16">
-      <section className="w-full max-w-lg rounded-2xl border border-[#e3e8ee] bg-white p-8 text-center shadow-[0_20px_60px_rgba(10,37,64,0.12)]">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#f1f4f8]">
-          {valid ? (
-            <PackageCheck className="h-9 w-9 text-emerald-600" />
-          ) : (
-            <CircleAlert className="h-9 w-9 text-amber-600" />
-          )}
-        </div>
-
-        <h1 className="mt-6 text-2xl font-bold text-[#0a2540]">
-          {valid ? order!.title : '领取链接无效'}
-        </h1>
+    <OrderProductShell product={product}>
+      <div className="flex h-full flex-col">
+        <div className="text-xs font-bold uppercase tracking-[0.14em] text-[#8792a2]">安全领取</div>
+        <h2 className="mt-3 font-display text-2xl font-bold text-[#0a2540]">
+          {valid ? '资产包已准备好' : '领取链接无效'}
+        </h2>
 
         {valid ? (
           <>
-            <p className="mt-3 text-sm leading-6 text-[#697386]">
-              点击下载后将生成一个 5 分钟有效的安全地址。请勿转发本领取页面。
-            </p>
-            <p className="mt-2 text-xs text-[#8792a2]">
-              领取链接有效至：
-              {new Date(order!.downloadExpiresAt!).toLocaleString('zh-CN', {
-                timeZone: 'Asia/Shanghai',
-              })}
-            </p>
+            <div className="mt-7 rounded-xl border border-[#e1e7ed] bg-[#fafbfc] p-4">
+              <div className="flex items-center justify-between gap-4 py-1.5 text-xs">
+                <span className="font-semibold text-[#7f8c9b]">领取有效期</span>
+                <strong className="text-[#0a2540]">
+                  {new Date(order!.downloadExpiresAt!).toLocaleString('zh-CN', {
+                    timeZone: 'Asia/Shanghai',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </strong>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-1.5 text-xs">
+                <span className="font-semibold text-[#7f8c9b]">资产包</span>
+                <strong className="text-[#0a2540]">{product.title}</strong>
+              </div>
+            </div>
             <DownloadClient
               token={token}
               initialRemaining={order!.downloadLimit - order!.downloadCount}
             />
           </>
         ) : (
-          <p className="mt-3 text-sm leading-6 text-[#697386]">
-            此链接可能已过期、领取次数已用完或已被新的领取邮件替换。
+          <p className="mt-5 text-sm leading-6 text-[#697386]">
+            此链接可能已经过期、领取次数已经用完，或已被新的领取邮件替换。
           </p>
         )}
 
-        <Link
-          href="/"
-          className="mt-6 inline-flex rounded-md border border-[#d8dee8] px-5 py-3 text-sm font-bold text-[#0a2540]"
-        >
-          返回首页
-        </Link>
-      </section>
-    </main>
+        <Image src="/cocotiny-logo.png" alt="CocoTiny" width={1179} height={405} className="mx-auto mt-10 h-auto w-[250px] max-w-[78%]" />
+        <p className="mt-auto pt-5 text-center text-xs leading-5 text-[#8792a2]">
+          遇到错误？联系{' '}
+          <a className="font-semibold text-[#635bff]" href="mailto:w211299486@gmail.com">w211299486@gmail.com</a>
+          {' / '}
+          <a className="font-semibold text-[#635bff]" href="mailto:211299486@qq.com">211299486@qq.com</a>
+        </p>
+      </div>
+    </OrderProductShell>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { Download, LoaderCircle } from 'lucide-react'
+import { LoaderCircle } from 'lucide-react'
 import { useState } from 'react'
 
 export function DownloadClient({
@@ -45,21 +45,23 @@ export function DownloadClient({
 
   return (
     <>
+      <div className="mt-6 flex items-center justify-between">
+        <span className="text-sm font-bold text-[#0a2540]">完整版资产包</span>
+        <span className="rounded-md bg-[#eeeaff] px-2.5 py-1.5 text-xs font-bold text-[#6255d2]">
+          剩余 {remaining} / 3 次
+        </span>
+      </div>
       <button
         type="button"
         onClick={download}
         disabled={loading || remaining <= 0}
-        className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#635bff] px-5 py-4 text-sm font-bold text-white shadow-[0_5px_12px_rgba(99,91,255,0.25)] disabled:cursor-not-allowed disabled:opacity-55"
+        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#635bff] px-5 py-4 text-sm font-bold text-white shadow-[0_5px_12px_rgba(99,91,255,0.25)] disabled:cursor-not-allowed disabled:opacity-55"
       >
-        {loading ? (
-          <LoaderCircle className="h-5 w-5 animate-spin" />
-        ) : (
-          <Download className="h-5 w-5" />
-        )}
+        {loading && <LoaderCircle className="h-5 w-5 animate-spin" />}
         {loading ? '正在生成安全下载地址' : '下载完整资产包'}
       </button>
-      <p className="mt-4 text-sm font-semibold text-[#697386]">
-        剩余领取次数：{remaining} / 3
+      <p className="mt-3 text-center text-xs font-medium text-[#98a3af]">
+        安全地址仅本次有效 5 分钟 · 请勿转发领取页
       </p>
       {error && (
         <p role="alert" className="mt-3 text-sm font-semibold text-red-600">
