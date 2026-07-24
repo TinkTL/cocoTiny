@@ -21,6 +21,7 @@ export type PaymentOrder = {
   downloadLimit: number
   emailStatus: PaymentEmailStatus
   emailAttempt: number
+  emailLastAttemptAt?: string
   emailSentAt?: string
   resendEmailId?: string
 }
@@ -42,6 +43,7 @@ type PaymentOrderRow = {
   download_limit: number
   email_status: PaymentEmailStatus
   email_attempt: number
+  email_last_attempt_at: Date | string | null
   email_sent_at: Date | string | null
   resend_email_id: string | null
 }
@@ -68,6 +70,7 @@ function mapOrder(row: PaymentOrderRow): PaymentOrder {
     downloadLimit: row.download_limit,
     emailStatus: row.email_status,
     emailAttempt: row.email_attempt,
+    emailLastAttemptAt: iso(row.email_last_attempt_at),
     emailSentAt: iso(row.email_sent_at),
     resendEmailId: row.resend_email_id ?? undefined,
   }
@@ -261,4 +264,14 @@ export function maskEmail(email: string) {
   if (!domain) return '***'
   const visible = local.slice(0, Math.min(2, local.length))
   return `${visible}${'*'.repeat(Math.max(3, local.length - visible.length))}@${domain}`
+}
+
+export function getEmailRetryAfterSeconds(
+  order: Pick<PaymentOrder, 'emailLastAttemptAt'>,
+  minimumDelaySeconds = 60,
+) {
+  if (!order.emailLastAttemptAt) return 0
+  const availableAt =
+    new Date(order.emailLastAttemptAt).getTime() + minimumDelaySeconds * 1000
+  return Math.max(0, Math.ceil((availableAt - Date.now()) / 1000))
 }

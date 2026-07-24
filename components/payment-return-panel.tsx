@@ -13,6 +13,7 @@ type PaymentQueryResult = {
   assetTitle?: string
   paidAt?: string
   emailStatus?: EmailStatus
+  retryAfterSeconds?: number
 }
 
 const emailStatusCopy: Record<EmailStatus, string> = {
@@ -33,6 +34,7 @@ export function PaymentReturnPanel({
   const [message, setMessage] = useState('')
   const [resending, setResending] = useState(false)
   const [resendMessage, setResendMessage] = useState('')
+  const [retryAfterSeconds, setRetryAfterSeconds] = useState(0)
 
   const fetchPaymentStatus = useCallback(async () => {
     const response = await fetch(
@@ -50,7 +52,10 @@ export function PaymentReturnPanel({
     let cancelled = false
     void fetchPaymentStatus()
       .then((nextResult) => {
-        if (!cancelled) setResult(nextResult)
+        if (!cancelled) {
+          setResult(nextResult)
+          setRetryAfterSeconds(nextResult.retryAfterSeconds || 0)
+        }
       })
       .catch((error: unknown) => {
         if (!cancelled) {
@@ -63,11 +68,21 @@ export function PaymentReturnPanel({
     }
   }, [fetchPaymentStatus])
 
+  useEffect(() => {
+    if (retryAfterSeconds <= 0) return
+    const timer = window.setInterval(() => {
+      setRetryAfterSeconds((seconds) => Math.max(0, seconds - 1))
+    }, 1000)
+    return () => window.clearInterval(timer)
+  }, [retryAfterSeconds])
+
   async function checkPayment() {
     setResult({ status: 'CHECKING' })
     setMessage('')
     try {
-      setResult(await fetchPaymentStatus())
+      const nextResult = await fetchPaymentStatus()
+      setResult(nextResult)
+      setRetryAfterSeconds(nextResult.retryAfterSeconds || 0)
     } catch (error) {
       setResult({ status: 'ERROR' })
       setMessage(error instanceof Error ? error.message : '订单查询失败')
@@ -84,6 +99,7 @@ export function PaymentReturnPanel({
       })
       const resendResult = (await response.json()) as {
         emailStatus?: EmailStatus
+        retryAfterSeconds?: number
         message?: string
         error?: string
       }
@@ -94,6 +110,7 @@ export function PaymentReturnPanel({
           emailStatus: resendResult.emailStatus,
         }))
       }
+      setRetryAfterSeconds(resendResult.retryAfterSeconds || 0)
       setResendMessage(resendResult.message || '领取邮件已重新发送到订单原邮箱')
     } catch (error) {
       setResendMessage(error instanceof Error ? error.message : '暂时无法重新发送')
@@ -148,11 +165,15 @@ export function PaymentReturnPanel({
           <button
             type="button"
             onClick={resendDelivery}
-            disabled={resending}
-            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md border border-[#635bff] px-4 py-3 text-sm font-bold text-[#635bff] transition hover:bg-[#f7f6ff] disabled:opacity-55"
+            disabled={resending || retryAfterSeconds > 0}
+            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#635bff] px-4 py-3 text-sm font-bold text-white shadow-[0_4px_8px_rgba(99,91,255,0.28)] transition hover:bg-[#554ccf] disabled:cursor-not-allowed disabled:bg-[#aaa5f5] disabled:shadow-none"
           >
             {resending && <LoaderCircle className="h-4 w-4 animate-spin" />}
-            {resending ? '正在重新发送…' : '重新发送领取邮件'}
+            {resending
+              ? '正在重新发送…'
+              : retryAfterSeconds > 0
+                ? `${retryAfterSeconds} 秒后可重新发送`
+                : '重新发送领取邮件'}
           </button>
           {resendMessage && (
             <p className="mt-3 text-center text-xs font-semibold text-[#697386]">

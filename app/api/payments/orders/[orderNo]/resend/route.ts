@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
 import { resendPaidDelivery } from '@/lib/payment-delivery'
-import { isCocoTinyOrderNo } from '@/lib/payment-orders'
+import {
+  getEmailRetryAfterSeconds,
+  getPaymentOrder,
+  isCocoTinyOrderNo,
+} from '@/lib/payment-orders'
 
 export const runtime = 'nodejs'
 
@@ -15,10 +19,25 @@ export async function POST(_request: Request, { params }: RouteContext) {
   }
 
   try {
+    const order = await getPaymentOrder(orderNo)
+    if (!order || order.status !== 'PAID') {
+      return NextResponse.json({ ok: true })
+    }
+
+    const retryAfterSeconds = getEmailRetryAfterSeconds(order)
+    if (retryAfterSeconds > 0) {
+      return NextResponse.json({
+        ok: true,
+        retryAfterSeconds,
+        message: `${retryAfterSeconds} 秒后可重新发送`,
+      })
+    }
+
     const delivery = await resendPaidDelivery(orderNo)
     if (!delivery) {
       return NextResponse.json({
         ok: true,
+        retryAfterSeconds: 60,
         message: '暂时无法重新发送，请稍后再试',
       })
     }
@@ -26,6 +45,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
     return NextResponse.json({
       ok: true,
       emailStatus: delivery.sent ? 'SENT' : 'FAILED',
+      retryAfterSeconds: 60,
       message: delivery.sent
         ? '领取邮件已重新发送到订单原邮箱'
         : '邮件暂时发送失败，请稍后重试',

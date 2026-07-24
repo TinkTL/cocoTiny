@@ -3,6 +3,7 @@ import { getAlipayConfigurationError, getAlipaySdk } from '@/lib/alipay'
 import { confirmPaidOrderAndDeliver } from '@/lib/payment-delivery'
 import {
   getPaymentOrder,
+  getEmailRetryAfterSeconds,
   isCocoTinyOrderNo,
   maskEmail,
 } from '@/lib/payment-orders'
@@ -71,6 +72,9 @@ export async function GET(request: Request) {
       assetTitle: persistedOrder?.title,
       paidAt: persistedOrder?.paidAt,
       emailStatus: persistedOrder?.emailStatus,
+      retryAfterSeconds: persistedOrder
+        ? getEmailRetryAfterSeconds(persistedOrder)
+        : 0,
     })
   } catch (error) {
     console.error('Alipay query order error', { orderNo, error })
