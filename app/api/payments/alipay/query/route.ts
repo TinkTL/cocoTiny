@@ -4,6 +4,7 @@ import { confirmPaidOrderAndDeliver } from '@/lib/payment-delivery'
 import {
   getPaymentOrder,
   getEmailRetryAfterSeconds,
+  getEmailResendsRemaining,
   isCocoTinyOrderNo,
   maskEmail,
 } from '@/lib/payment-orders'
@@ -74,6 +75,9 @@ export async function GET(request: Request) {
       emailStatus: persistedOrder?.emailStatus,
       retryAfterSeconds: persistedOrder
         ? getEmailRetryAfterSeconds(persistedOrder)
+        : 0,
+      resendsRemaining: persistedOrder
+        ? getEmailResendsRemaining(persistedOrder)
         : 0,
     })
   } catch (error) {

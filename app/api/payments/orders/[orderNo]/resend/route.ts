@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { resendPaidDelivery } from '@/lib/payment-delivery'
 import {
   getEmailRetryAfterSeconds,
+  getEmailResendsRemaining,
   getPaymentOrder,
   isCocoTinyOrderNo,
 } from '@/lib/payment-orders'
@@ -24,10 +25,21 @@ export async function POST(_request: Request, { params }: RouteContext) {
       return NextResponse.json({ ok: true })
     }
 
+    const resendsRemaining = getEmailResendsRemaining(order)
+    if (resendsRemaining <= 0) {
+      return NextResponse.json({
+        ok: true,
+        resendsRemaining: 0,
+        retryAfterSeconds: 0,
+        message: '已达到此订单的邮件重发上限',
+      })
+    }
+
     const retryAfterSeconds = getEmailRetryAfterSeconds(order)
     if (retryAfterSeconds > 0) {
       return NextResponse.json({
         ok: true,
+        resendsRemaining,
         retryAfterSeconds,
         message: `${retryAfterSeconds} 秒后可重新发送`,
       })
@@ -37,6 +49,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
     if (!delivery) {
       return NextResponse.json({
         ok: true,
+        resendsRemaining: Math.max(0, resendsRemaining - 1),
         retryAfterSeconds: 60,
         message: '暂时无法重新发送，请稍后再试',
       })
@@ -45,6 +58,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
     return NextResponse.json({
       ok: true,
       emailStatus: delivery.sent ? 'SENT' : 'FAILED',
+      resendsRemaining: getEmailResendsRemaining(delivery.order),
       retryAfterSeconds: 60,
       message: delivery.sent
         ? '领取邮件已重新发送到订单原邮箱'

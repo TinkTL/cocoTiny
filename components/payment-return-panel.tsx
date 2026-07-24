@@ -14,6 +14,7 @@ type PaymentQueryResult = {
   paidAt?: string
   emailStatus?: EmailStatus
   retryAfterSeconds?: number
+  resendsRemaining?: number
 }
 
 const emailStatusCopy: Record<EmailStatus, string> = {
@@ -35,6 +36,7 @@ export function PaymentReturnPanel({
   const [resending, setResending] = useState(false)
   const [resendMessage, setResendMessage] = useState('')
   const [retryAfterSeconds, setRetryAfterSeconds] = useState(0)
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   const fetchPaymentStatus = useCallback(async () => {
     const response = await fetch(
@@ -100,6 +102,7 @@ export function PaymentReturnPanel({
       const resendResult = (await response.json()) as {
         emailStatus?: EmailStatus
         retryAfterSeconds?: number
+        resendsRemaining?: number
         message?: string
         error?: string
       }
@@ -110,12 +113,29 @@ export function PaymentReturnPanel({
           emailStatus: resendResult.emailStatus,
         }))
       }
+      if (typeof resendResult.resendsRemaining === 'number') {
+        setResult((current) => ({
+          ...current,
+          resendsRemaining: resendResult.resendsRemaining,
+        }))
+      }
       setRetryAfterSeconds(resendResult.retryAfterSeconds || 0)
       setResendMessage(resendResult.message || '领取邮件已重新发送到订单原邮箱')
     } catch (error) {
       setResendMessage(error instanceof Error ? error.message : '暂时无法重新发送')
     } finally {
       setResending(false)
+    }
+  }
+
+  async function copyOrderNumber() {
+    try {
+      await navigator.clipboard.writeText(orderNo)
+      setCopyStatus('success')
+      window.setTimeout(() => setCopyStatus('idle'), 2000)
+    } catch {
+      setCopyStatus('error')
+      window.setTimeout(() => setCopyStatus('idle'), 2500)
     }
   }
 
@@ -153,7 +173,25 @@ export function PaymentReturnPanel({
         <>
           <div className="mt-7 divide-y divide-[#e6ebf1] border-y border-[#e6ebf1]">
             <OrderRow label="邮箱地址" value={result.email || '已脱敏'} />
-            <OrderRow label="订单编号" value={orderNo} truncate />
+            <div className="flex items-center justify-between gap-5 py-3.5 text-sm">
+              <span className="shrink-0 font-semibold text-[#697386]">订单编号</span>
+              <div className="flex min-w-0 items-center justify-end gap-2">
+                <strong className="max-w-[190px] truncate text-right text-[#0a2540]" title={orderNo}>
+                  {orderNo}
+                </strong>
+                <button
+                  type="button"
+                  onClick={copyOrderNumber}
+                  className="shrink-0 rounded px-2 py-1 text-xs font-bold text-[#635bff] transition hover:bg-[#f0edff]"
+                >
+                  {copyStatus === 'success'
+                    ? '已复制'
+                    : copyStatus === 'error'
+                      ? '复制失败'
+                      : '复制'}
+                </button>
+              </div>
+            </div>
             <OrderRow label="资产包" value={result.assetTitle || productTitle} />
             <OrderRow label="付款时间" value={paidTime} />
             <OrderRow
@@ -165,16 +203,25 @@ export function PaymentReturnPanel({
           <button
             type="button"
             onClick={resendDelivery}
-            disabled={resending || retryAfterSeconds > 0}
+            disabled={
+              resending ||
+              retryAfterSeconds > 0 ||
+              (result.resendsRemaining ?? 0) <= 0
+            }
             className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#635bff] px-4 py-3 text-sm font-bold text-white shadow-[0_4px_8px_rgba(99,91,255,0.28)] transition hover:bg-[#554ccf] disabled:cursor-not-allowed disabled:bg-[#aaa5f5] disabled:shadow-none"
           >
             {resending && <LoaderCircle className="h-4 w-4 animate-spin" />}
             {resending
               ? '正在重新发送…'
-              : retryAfterSeconds > 0
+              : (result.resendsRemaining ?? 0) <= 0
+                ? '已达重发上限'
+                : retryAfterSeconds > 0
                 ? `${retryAfterSeconds} 秒后可重新发送`
                 : '重新发送领取邮件'}
           </button>
+          <p className="mt-2 text-center text-xs font-semibold text-[#8792a2]">
+            剩余重发次数：{result.resendsRemaining ?? 0} / 3
+          </p>
           {resendMessage && (
             <p className="mt-3 text-center text-xs font-semibold text-[#697386]">
               {resendMessage}

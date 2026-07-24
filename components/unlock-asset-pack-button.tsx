@@ -150,6 +150,15 @@ export function UnlockAssetPackButton({
     const orderNo = params.get('orderNo')
     if (params.get('payment') !== 'return' || !orderNo) return
 
+    const cleanUrl = new URL(window.location.href)
+    cleanUrl.searchParams.delete('payment')
+    cleanUrl.searchParams.delete('orderNo')
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`,
+    )
+
     try {
       const saved = JSON.parse(
         sessionStorage.getItem('cocotiny-payment-return') || 'null',

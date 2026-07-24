@@ -1,6 +1,9 @@
 import { createHash } from 'node:crypto'
 import { getDatabase } from '@/lib/db'
 
+export const MAX_EMAIL_RESENDS = 3
+const MAX_EMAIL_ATTEMPTS = 1 + MAX_EMAIL_RESENDS
+
 export type PaymentOrderStatus = 'PENDING' | 'PAID' | 'CLOSED'
 export type PaymentEmailStatus = 'NOT_READY' | 'PENDING' | 'SENT' | 'FAILED'
 
@@ -187,6 +190,7 @@ export async function prepareEmailRetryForOrder(input: {
     WHERE order_no = ${input.orderNo}
       AND status = 'PAID'
       AND download_expires_at > NOW()
+      AND email_attempt < ${MAX_EMAIL_ATTEMPTS}
       AND (
         email_last_attempt_at IS NULL
         OR email_last_attempt_at <= NOW() - (${delay} * INTERVAL '1 second')
@@ -274,4 +278,10 @@ export function getEmailRetryAfterSeconds(
   const availableAt =
     new Date(order.emailLastAttemptAt).getTime() + minimumDelaySeconds * 1000
   return Math.max(0, Math.ceil((availableAt - Date.now()) / 1000))
+}
+
+export function getEmailResendsRemaining(
+  order: Pick<PaymentOrder, 'emailAttempt'>,
+) {
+  return Math.max(0, MAX_EMAIL_ATTEMPTS - order.emailAttempt)
 }
