@@ -7,7 +7,7 @@ type RouteContext = {
 
 export async function GET(_request: Request, { params }: RouteContext) {
   const { orderNo } = await params
-  const order = getPaymentOrder(orderNo)
+  const order = await getPaymentOrder(orderNo)
 
   if (!order) {
     return NextResponse.json({ error: '订单不存在' }, { status: 404 })

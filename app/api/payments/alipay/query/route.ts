@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
 import { getAlipayConfigurationError, getAlipaySdk } from '@/lib/alipay'
-import { isCocoTinyOrderNo } from '@/lib/payment-orders'
-import { ASSET_PACK_PRICE } from '@/lib/payment-products'
+import { confirmPaidOrderAndDeliver } from '@/lib/payment-delivery'
+import {
+  getPaymentOrder,
+  isCocoTinyOrderNo,
+  maskEmail,
+} from '@/lib/payment-orders'
 
 export const runtime = 'nodejs'
 
@@ -14,6 +18,11 @@ export async function GET(request: Request) {
   const configurationError = getAlipayConfigurationError()
   if (configurationError) {
     return NextResponse.json({ error: configurationError }, { status: 503 })
+  }
+
+  const order = await getPaymentOrder(orderNo)
+  if (!order) {
+    return NextResponse.json({ error: '订单不存在' }, { status: 404 })
   }
 
   try {
@@ -42,17 +51,24 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: '暂时无法查询支付宝订单' }, { status: 502 })
     }
 
-    if (responseOrderNo !== orderNo || totalAmount !== ASSET_PACK_PRICE) {
+    if (responseOrderNo !== orderNo || totalAmount !== order.amount) {
       console.error('Alipay query identity mismatch', { orderNo, responseOrderNo, totalAmount })
       return NextResponse.json({ error: '支付宝订单校验失败' }, { status: 502 })
     }
 
     const paid = tradeStatus === 'TRADE_SUCCESS' || tradeStatus === 'TRADE_FINISHED'
+    const persistedOrder =
+      paid && tradeNo
+        ? await confirmPaidOrderAndDeliver(orderNo, tradeNo)
+        : await getPaymentOrder(orderNo)
+
     return NextResponse.json({
       orderNo,
       status: paid ? 'PAID' : tradeStatus === 'TRADE_CLOSED' ? 'CLOSED' : 'PENDING',
       amount: totalAmount,
       tradeNo: paid ? tradeNo : undefined,
+      email: persistedOrder ? maskEmail(persistedOrder.email) : undefined,
+      emailStatus: persistedOrder?.emailStatus,
     })
   } catch (error) {
     console.error('Alipay query order error', { orderNo, error })

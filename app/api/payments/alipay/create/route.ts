@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server'
 import { getAlipayConfigurationError, getAlipaySdk } from '@/lib/alipay'
-import { createPaymentOrder } from '@/lib/payment-orders'
+import {
+  createPaymentOrder,
+  isValidBuyerEmail,
+  normalizeEmail,
+} from '@/lib/payment-orders'
 import { getPaymentProduct } from '@/lib/payment-products'
 
 export const runtime = 'nodejs'
 
 type CreatePaymentBody = {
   assetSlug?: unknown
+  email?: unknown
 }
 
 export async function POST(request: Request) {
@@ -22,6 +27,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: '缺少资产包标识' }, { status: 400 })
   }
 
+  if (!isValidBuyerEmail(body.email)) {
+    return NextResponse.json({ error: '请输入有效的接收邮箱' }, { status: 400 })
+  }
+
   const product = getPaymentProduct(body.assetSlug)
   if (!product) {
     return NextResponse.json({ error: '资产包不存在或暂未上架' }, { status: 404 })
@@ -35,9 +44,11 @@ export async function POST(request: Request) {
     )
   }
 
-  const order = createPaymentOrder({
+  const order = await createPaymentOrder({
     assetSlug: product.slug,
     title: product.title,
+    objectKey: product.objectKey,
+    email: normalizeEmail(body.email),
     amount: product.price,
   })
 

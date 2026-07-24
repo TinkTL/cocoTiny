@@ -1,6 +1,6 @@
 import { getAlipaySdk } from '@/lib/alipay'
-import { isCocoTinyOrderNo } from '@/lib/payment-orders'
-import { ASSET_PACK_PRICE } from '@/lib/payment-products'
+import { confirmPaidOrderAndDeliver } from '@/lib/payment-delivery'
+import { getPaymentOrder, isCocoTinyOrderNo } from '@/lib/payment-orders'
 
 export const runtime = 'nodejs'
 
@@ -23,15 +23,21 @@ export async function POST(request: Request) {
     const orderNo = payload.out_trade_no
     if (!isCocoTinyOrderNo(orderNo)) return textResponse('failure')
 
+    const order = await getPaymentOrder(orderNo)
+    if (!order) return textResponse('failure')
+
     const validApp = payload.app_id === process.env.ALIPAY_APP_ID
     const validSeller =
       !process.env.ALIPAY_SELLER_ID || payload.seller_id === process.env.ALIPAY_SELLER_ID
-    const validAmount = payload.total_amount === ASSET_PACK_PRICE
+    const validAmount = payload.total_amount === order.amount
     const paid = payload.trade_status === 'TRADE_SUCCESS' || payload.trade_status === 'TRADE_FINISHED'
 
     if (!validApp || !validSeller || !validAmount || !paid || !payload.trade_no) {
       return textResponse('failure')
     }
+
+    const paidOrder = await confirmPaidOrderAndDeliver(orderNo, payload.trade_no)
+    if (!paidOrder || paidOrder.status !== 'PAID') return textResponse('failure')
 
     console.info('Alipay payment confirmed', {
       orderNo,

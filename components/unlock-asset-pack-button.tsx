@@ -39,6 +39,10 @@ const paymentCopy = {
     paymentMethod: 'Payment method',
     alipay: 'Alipay',
     redirect: 'Pay securely with Alipay',
+    emailLabel: 'Delivery email',
+    emailPlaceholder: 'you@example.com',
+    emailHint: 'Your secure download link will be sent to this address after payment.',
+    emailError: 'Enter a valid email address for delivery.',
     total: 'Total due',
     pay: `Pay ¥${price}`,
     terms: 'By confirming, you agree to the purchase terms for this digital asset pack.',
@@ -63,6 +67,10 @@ const paymentCopy = {
     paymentMethod: '支付方式',
     alipay: '支付宝',
     redirect: '通过支付宝安全支付',
+    emailLabel: '接收资产包的邮箱',
+    emailPlaceholder: 'you@example.com',
+    emailHint: '付款成功后，安全领取链接将发送到这个邮箱。',
+    emailError: '请输入有效的接收邮箱。',
     total: '应付总额',
     pay: `支付 ¥${price}`,
     terms: '确认支付即表示你同意此数字资产包的购买条款。',
@@ -88,12 +96,18 @@ export function UnlockAssetPackButton({
   const [open, setOpen] = useState(false)
   const [creatingPayment, setCreatingPayment] = useState(false)
   const [paymentError, setPaymentError] = useState('')
+  const [email, setEmail] = useState('')
   const headingId = useId()
   const TriggerIcon = icon === 'package' ? PackageOpen : ArrowRight
   const displayName = locale === 'zh' ? packName.zh : packName.en
 
   async function startPayment() {
     if (creatingPayment) return
+
+    if (!email.trim() || !email.includes('@')) {
+      setPaymentError(text.emailError)
+      return
+    }
 
     setCreatingPayment(true)
     setPaymentError('')
@@ -102,7 +116,7 @@ export function UnlockAssetPackButton({
       const response = await fetch('/api/payments/alipay/create', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ assetSlug }),
+        body: JSON.stringify({ assetSlug, email }),
       })
       const result = (await response.json()) as { payUrl?: string; error?: string }
 
@@ -254,10 +268,27 @@ export function UnlockAssetPackButton({
                   </div>
                 </div>
 
+                <label className="mt-6 block text-left text-sm font-bold text-[#0a2540]">
+                  {text.emailLabel}
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder={text.emailPlaceholder}
+                    autoComplete="email"
+                    maxLength={254}
+                    required
+                    className="mt-2 w-full rounded-md border border-[#cbd5e1] px-4 py-3 font-medium outline-none transition focus:border-[#635bff] focus:ring-2 focus:ring-[#635bff]/20"
+                  />
+                </label>
+                <p className="mt-2 text-left text-xs font-medium leading-5 text-[#8792a2]">
+                  {text.emailHint}
+                </p>
+
                 <button
                   type="button"
                   onClick={startPayment}
-                  disabled={creatingPayment}
+                  disabled={creatingPayment || !email.trim()}
                   className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#635bff] px-5 py-4 text-sm font-bold text-white shadow-[0_4px_8px_rgba(99,91,255,0.28)] transition hover:bg-[#554ccf] active:translate-y-px"
                 >
                   <LockKeyhole className="h-4 w-4" />

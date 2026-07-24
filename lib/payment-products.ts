@@ -6,6 +6,7 @@ export type PaymentProduct = {
   slug: string
   title: string
   price: string
+  objectKey: string
 }
 
 export function getPaymentProduct(slug: string): PaymentProduct | undefined {
@@ -16,6 +17,7 @@ export function getPaymentProduct(slug: string): PaymentProduct | undefined {
       slug: normalizedSlug,
       title: 'WINDMILLBAKERY',
       price: ASSET_PACK_PRICE,
+      objectKey: 'windmillbakery.zip',
     }
   }
 
@@ -26,5 +28,6 @@ export function getPaymentProduct(slug: string): PaymentProduct | undefined {
     slug: pack.slug,
     title: pack.title,
     price: ASSET_PACK_PRICE,
+    objectKey: `${pack.slug}.zip`,
   }
 }
