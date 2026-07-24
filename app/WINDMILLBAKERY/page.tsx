@@ -260,6 +260,7 @@ export default function WindmillBakeryPage() {
               <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">
                 <UnlockAssetPackButton
                   assetSlug="windmillbakery"
+                  autoHandlePaymentReturn
                   packTitle="WINDMILLBAKERY"
                   packName={{ en: 'Windmill Bakery', zh: '风车面包坊' }}
                   cover="/assets/windmillbakery/cover-en.png"

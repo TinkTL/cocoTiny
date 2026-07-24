@@ -225,6 +225,7 @@ export function AssetPackDetail({ pack }: { pack: AssetPack }) {
               <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">
                 <UnlockAssetPackButton
                   assetSlug={pack.slug}
+                  autoHandlePaymentReturn
                   packTitle={pack.title}
                   packName={pack.name}
                   cover={`/assets/${pack.slug}/cover-en.png`}

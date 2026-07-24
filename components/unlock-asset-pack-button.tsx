@@ -5,6 +5,7 @@ import { ArrowRight, Check, LockKeyhole, PackageOpen, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLanguage } from '@/components/language-provider'
+import { PaymentReturnPanel } from '@/components/payment-return-panel'
 
 type UnlockAssetPackButtonProps = {
   assetSlug: string
@@ -19,6 +20,7 @@ type UnlockAssetPackButtonProps = {
   }
   className: string
   icon?: 'arrow' | 'package'
+  autoHandlePaymentReturn?: boolean
 }
 
 const price = '0.10'
@@ -90,6 +92,7 @@ export function UnlockAssetPackButton({
   stats,
   className,
   icon = 'arrow',
+  autoHandlePaymentReturn = false,
 }: UnlockAssetPackButtonProps) {
   const { locale } = useLanguage()
   const text = paymentCopy[locale]
@@ -97,6 +100,7 @@ export function UnlockAssetPackButton({
   const [creatingPayment, setCreatingPayment] = useState(false)
   const [paymentError, setPaymentError] = useState('')
   const [email, setEmail] = useState('')
+  const [returnOrderNo, setReturnOrderNo] = useState('')
   const headingId = useId()
   const TriggerIcon = icon === 'package' ? PackageOpen : ArrowRight
   const displayName = locale === 'zh' ? packName.zh : packName.en
@@ -124,12 +128,56 @@ export function UnlockAssetPackButton({
         throw new Error(result.error || text.paymentError)
       }
 
+      sessionStorage.setItem(
+        'cocotiny-payment-return',
+        JSON.stringify({
+          pathname: window.location.pathname,
+          scrollY: window.scrollY,
+          savedAt: Date.now(),
+        }),
+      )
       window.location.assign(result.payUrl)
     } catch (error) {
       setPaymentError(error instanceof Error ? error.message : text.paymentError)
       setCreatingPayment(false)
     }
   }
+
+  useEffect(() => {
+    if (!autoHandlePaymentReturn) return
+
+    const params = new URLSearchParams(window.location.search)
+    const orderNo = params.get('orderNo')
+    if (params.get('payment') !== 'return' || !orderNo) return
+
+    try {
+      const saved = JSON.parse(
+        sessionStorage.getItem('cocotiny-payment-return') || 'null',
+      ) as { pathname?: string; scrollY?: number; savedAt?: number } | null
+
+      if (
+        saved?.pathname === window.location.pathname &&
+        typeof saved.scrollY === 'number' &&
+        typeof saved.savedAt === 'number' &&
+        Date.now() - saved.savedAt < 30 * 60 * 1000
+      ) {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: saved.scrollY, behavior: 'auto' })
+        })
+      }
+    } catch {
+      // Invalid temporary browser state is safe to ignore.
+    } finally {
+      sessionStorage.removeItem('cocotiny-payment-return')
+    }
+
+    const openFrame = requestAnimationFrame(() => {
+      setReturnOrderNo(orderNo)
+      setOpen(true)
+    })
+
+    return () => cancelAnimationFrame(openFrame)
+  }, [autoHandlePaymentReturn])
 
   useEffect(() => {
     if (!open) return
@@ -241,7 +289,14 @@ export function UnlockAssetPackButton({
                 </div>
               </section>
 
-              <section className="flex flex-col px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:pt-20">
+              <section className="flex min-h-[620px] flex-col px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:pt-20">
+                {returnOrderNo ? (
+                  <PaymentReturnPanel
+                    orderNo={returnOrderNo}
+                    productTitle={packTitle}
+                  />
+                ) : (
+                  <>
                 <h3 className="font-display text-xl font-bold text-[#0a2540]">{text.paymentMethod}</h3>
 
                 <div
@@ -309,6 +364,8 @@ export function UnlockAssetPackButton({
                   <LockKeyhole className="h-3.5 w-3.5" />
                   {text.secure}
                 </div>
+                  </>
+                )}
               </section>
             </div>
           </div>,

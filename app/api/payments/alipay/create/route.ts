@@ -53,8 +53,12 @@ export async function POST(request: Request) {
   })
 
   try {
-    const returnUrl = new URL(process.env.ALIPAY_RETURN_URL!)
+    const returnUrl = new URL(
+      product.route,
+      new URL(process.env.ALIPAY_RETURN_URL!).origin,
+    )
     returnUrl.searchParams.set('orderNo', order.orderNo)
+    returnUrl.searchParams.set('payment', 'return')
 
     const payUrl = getAlipaySdk().pageExecute(
       'alipay.trade.page.pay',
