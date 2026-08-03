@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
 import {
   getAssetCover,
   homeFeatured,
@@ -60,12 +59,6 @@ export function FeaturedGrid() {
                 <Tag key={tag}>{tag}</Tag>
               ))}
             </div>
-            <span className="mt-5 inline-flex w-fit items-center gap-2 rounded-full bg-cream px-4 py-2.5 text-sm font-bold text-ink shadow-md transition-transform group-hover:scale-105">
-              {featuredCopy.viewAsset}
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ink text-cream">
-                <ArrowRight className="h-3.5 w-3.5" />
-              </span>
-            </span>
           </div>
         </Link>
 

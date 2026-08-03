@@ -6,20 +6,29 @@ type FeaturedAsset = {
   badge: LocalizedText
 }
 
+type HomeBanner = {
+  image: string
+  href: string
+  title: LocalizedText
+  description: LocalizedText
+}
+
+function assetBanner(slug: keyof typeof assetPacks): HomeBanner {
+  const pack = assetPacks[slug]
+
+  return {
+    image: getAssetCover(pack.slug),
+    href: pack.route,
+    title: pack.name,
+    description: pack.hero,
+  }
+}
+
 export const homeFeatured = {
   hero: [
-    {
-      slug: 'qing-luo-outpost',
-      badge: { en: 'World Pick', zh: '世界精选' },
-    },
-    {
-      slug: 'gardenia-herb-society',
-      badge: { en: 'Cozy Pick', zh: '治愈精选' },
-    },
-    {
-      slug: 'ying-long-night-lantern',
-      badge: { en: 'Night Pick', zh: '夜色精选' },
-    },
+    assetBanner('qing-luo-outpost'),
+    assetBanner('gardenia-herb-society'),
+    assetBanner('ying-long-night-lantern'),
   ],
   editorsPick: {
     slug: 'mint-knights',
@@ -28,17 +37,17 @@ export const homeFeatured = {
   supporting: [
     {
       slug: 'dengmiao-youchai',
-      badge: { en: 'Storybook Pick', zh: '童话精选' },
+      badge: { en: 'Recently Updated', zh: '最近更新' },
       badgeColor: 'bg-purple text-white',
     },
     {
       slug: 'shacha-tangguowu',
-      badge: { en: 'Sweet Pick', zh: '甜蜜精选' },
+      badge: { en: 'Recently Updated', zh: '最近更新' },
       badgeColor: 'bg-pink text-white',
     },
   ],
 } as const satisfies {
-  hero: readonly FeaturedAsset[]
+  hero: readonly HomeBanner[]
   editorsPick: FeaturedAsset
   supporting: readonly (FeaturedAsset & { badgeColor: string })[]
 }
@@ -46,11 +55,9 @@ export const homeFeatured = {
 export const homeFeaturedCopy = {
   en: {
     assetPack: 'CocoTiny Asset Pack',
-    viewAsset: 'View asset pack',
   },
   zh: {
     assetPack: 'CocoTiny 美术资产包',
-    viewAsset: '查看资产包',
   },
 } as const
 
