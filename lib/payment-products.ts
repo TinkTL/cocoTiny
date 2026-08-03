@@ -1,6 +1,5 @@
 import { getAssetPack } from '@/lib/asset-pack-data'
-
-export const ASSET_PACK_PRICE = '0.10'
+import { ASSET_PACK_PRICE } from '@/lib/pricing'
 
 export type PaymentProduct = {
   slug: string

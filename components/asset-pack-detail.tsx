@@ -246,7 +246,7 @@ export function AssetPackDetail({ pack }: { pack: AssetPack }) {
       </section>
 
       <section className="relative z-20 mx-auto -mt-7 max-w-6xl px-5 sm:px-8">
-        <div className="grid overflow-hidden rounded border border-black/10 bg-white/90 shadow-[0_24px_80px_rgba(30,25,20,0.18)] sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid overflow-hidden rounded-lg border border-black/10 bg-white shadow-[0_24px_80px_rgba(30,25,20,0.18)] sm:grid-cols-2 lg:grid-cols-4">
           {[
             [Images, pack.stats.images],
             [PackageOpen, pack.stats.logicalAssets],

@@ -6,6 +6,7 @@ import { useEffect, useId, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLanguage } from '@/components/language-provider'
 import { PaymentReturnPanel } from '@/components/payment-return-panel'
+import { ASSET_PACK_PRICE } from '@/lib/pricing'
 
 type UnlockAssetPackButtonProps = {
   assetSlug: string
@@ -23,7 +24,7 @@ type UnlockAssetPackButtonProps = {
   autoHandlePaymentReturn?: boolean
 }
 
-const price = '0.10'
+const price = ASSET_PACK_PRICE
 
 const paymentCopy = {
   en: {

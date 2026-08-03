@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowLeft, Check, X } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { OrderProductPresentation } from '@/lib/order-product-presentation'
+import { ASSET_PACK_PRICE } from '@/lib/pricing'
 
 export function OrderProductShell({
   product,
@@ -38,7 +39,7 @@ export function OrderProductShell({
           <div className="mt-10 text-sm font-semibold text-[#697386]">支付给 CocoTiny</div>
           <div className="mt-2 flex items-baseline text-[#0a2540]">
             <span className="mr-1 text-2xl font-semibold">¥</span>
-            <span className="text-5xl font-bold tracking-tight">0.10</span>
+            <span className="text-5xl font-bold tracking-tight">{ASSET_PACK_PRICE}</span>
           </div>
           <div className="mt-8 flex gap-4 rounded-lg border border-[#e3e8ee] bg-white p-4 shadow-[0_2px_5px_rgba(50,50,93,0.08)]">
             <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-md bg-[#0a2540]">
