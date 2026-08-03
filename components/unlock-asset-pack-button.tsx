@@ -315,9 +315,13 @@ export function UnlockAssetPackButton({
                   aria-checked="true"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="grid h-10 w-10 place-items-center rounded-md bg-[#1677ff] text-lg font-black text-white">
-                      支
-                    </div>
+                    <Image
+                      src="/icons/alipay.svg"
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 shrink-0 object-contain"
+                    />
                     <div>
                       <div className="font-bold text-[#0a2540]">{text.alipay}</div>
                       <div className="mt-0.5 text-xs font-semibold text-[#8792a2]">{text.redirect}</div>
