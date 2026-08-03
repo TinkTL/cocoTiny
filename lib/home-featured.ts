@@ -38,12 +38,12 @@ export const homeFeatured = {
     {
       slug: 'dengmiao-youchai',
       badge: { en: 'Recently Updated', zh: '最近更新' },
-      badgeColor: 'bg-purple text-white',
+      badgeColor: 'bg-[#32C875] text-white',
     },
     {
       slug: 'shacha-tangguowu',
       badge: { en: 'Recently Updated', zh: '最近更新' },
-      badgeColor: 'bg-pink text-white',
+      badgeColor: 'bg-[#32C875] text-white',
     },
   ],
 } as const satisfies {

@@ -2,11 +2,10 @@ import { cn } from '@/lib/utils'
 
 /**
  * Social icons are rendered from the user-provided SVG files via CSS mask,
- * so all three share one unified color (currentColor of the parent link).
+ * so they share one unified color (currentColor of the parent link).
  */
 const socials = [
   { name: 'Bilibili', src: '/icons/bilibili.svg', sizeClassName: 'h-6 w-6 lg:h-8 lg:w-8' },
-  { name: '爱发电', src: '/icons/aifadian.svg', sizeClassName: 'h-7 w-7 lg:h-9 lg:w-9' },
   { name: '小红书', src: '/icons/xiaohongshu.svg', sizeClassName: 'h-7 w-7 lg:h-9 lg:w-9' },
 ]
 
