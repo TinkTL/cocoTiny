@@ -44,7 +44,8 @@ slug. The components and layout do not need to be rewritten.
 - Keep the complete Editor's Pick card clickable but remove its visible View
   Asset Pack button.
 - Label both supporting cards "Recently Updated" in English and "最近更新" in
-  Chinese.
+  Chinese. Render both labels with the same bright green `#32C875` background
+  and white text.
 - Make every promoted card navigate to the matching asset detail page.
 - Replace event dates, YouTube language, fictional game franchises, and game
   release messaging with asset-oriented labels.
