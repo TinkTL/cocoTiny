@@ -18,23 +18,34 @@ packs become the site's promoted content.
 
 ## Architecture
 
-Create one home-featured configuration containing asset slugs, placements, and
-localized promotional badges. Hero and featured-grid components resolve each
-slug through the existing asset-pack catalog instead of duplicating titles,
-descriptions, tags, images, and routes.
+Create one home-featured configuration for both reusable promotional banners
+and asset placements. Hero banners have their own image, localized title,
+localized description, and destination URL. This keeps the hero generic enough
+to promote future events, announcements, or other non-asset content. The
+current hero entries may resolve those fields from the existing asset catalog.
 
-The configuration is editorial: changing a promoted pack later requires
-changing only its slug and badge configuration. The components and layout do
-not need to be rewritten.
+The featured grid continues to resolve asset slugs through the existing catalog
+instead of duplicating names, descriptions, tags, covers, and routes.
+
+The configuration is editorial: changing a featured asset or hero promotion
+later requires changing only its configured content, destination, or asset
+slug. The components and layout do not need to be rewritten.
 
 ## Presentation and Behavior
 
-- Preserve the current hero, large-card, small-card layouts, gradients,
-  controls, responsive behavior, and hover animation.
+- Render the hero as a roughly 16:9 banner, matching the visual proportion of
+  the large Editor's Pick card below it.
+- Keep the hero title, description, carousel dots, arrow controls, responsive
+  behavior, gradient, and hover animation.
+- Do not show a badge or call-to-action button inside hero banners. The complete
+  banner remains clickable and uses its configured destination URL.
 - Use each selected pack's real cover, localized name, localized description,
   localized tags, and existing detail route.
-- Make every promoted card and hero call to action navigate to the matching
-  asset detail page.
+- Keep the complete Editor's Pick card clickable but remove its visible View
+  Asset Pack button.
+- Label both supporting cards "Recently Updated" in English and "最近更新" in
+  Chinese.
+- Make every promoted card navigate to the matching asset detail page.
 - Replace event dates, YouTube language, fictional game franchises, and game
   release messaging with asset-oriented labels.
 - All visible copy follows the active English or Chinese locale.
